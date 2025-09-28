@@ -26,6 +26,7 @@
     <div id="resultado" style="display:none;">
         <p><strong>¡Enlace generado!</strong></p>
         <a href="#" id="enlaceGenerado" target="_blank"></a>
+        <button id="btnAbrir" style="margin-top:10px; display:none;">Abrir tarjeta ahora</button>
         <p id="mensajeCopiado" style="color: green; font-weight: bold; display: none;">¡Copiado al portapapeles!</p>
     </div>
 
@@ -40,9 +41,8 @@
                 return;
             }
 
-            // 2. Construir la URL base de tu invitación
-            // IMPORTANTE: Cambia esta URL por la de tu GitHub Pages
-            const urlBase = 'https://tu-usuario.github.io/tu-proyecto/';
+            // 2. Construir la URL base dinámicamente apuntando a index.html en esta misma carpeta
+            const urlBase = new URL('index.html', window.location.href).toString().split('#')[0].split('?')[0];
             
             // 3. Codificar el nombre para que sea seguro en una URL (maneja espacios, acentos, etc. )
             const nombreCodificado = encodeURIComponent(nombre);
@@ -53,10 +53,13 @@
             // 5. Mostrar el resultado en la página
             const divResultado = document.getElementById('resultado');
             const aEnlaceGenerado = document.getElementById('enlaceGenerado');
+            const btnAbrir = document.getElementById('btnAbrir');
             
             aEnlaceGenerado.href = enlaceFinal;
             aEnlaceGenerado.textContent = enlaceFinal;
             divResultado.style.display = 'block';
+            btnAbrir.style.display = 'inline-block';
+            btnAbrir.onclick = () => window.open(enlaceFinal, '_blank');
 
             // 6. Copiar automáticamente al portapapeles
             navigator.clipboard.writeText(enlaceFinal).then(() => {

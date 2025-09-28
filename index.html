@@ -15,8 +15,15 @@
     // 1. Obtener los parámetros de la URL
     const params = new URLSearchParams(window.location.search);
 
+    // Si no hay parámetro 'familia', redirigir al generador primero
+    const familiaParam = params.get('familia');
+    if (!familiaParam) {
+        window.location.href = 'generador.html';
+        return;
+    }
+
     // 2. Buscar el parámetro 'familia' y decodificarlo por si tiene espacios o acentos
-    const nombreFamilia = decodeURIComponent(params.get('familia') || 'Invitado Especial');
+    const nombreFamilia = decodeURIComponent(familiaParam || 'Invitado Especial');
 
     // 3. Encontrar el elemento en el HTML donde va el nombre
     const elementoNombre = document.getElementById('nombre-familia');
