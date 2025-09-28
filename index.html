@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuestra Boda</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>¡Están invitados!</h1>
+    <p>Querida familia <strong id="nombre-familia"></strong>,</p>
+    <p>Nos encantaría que nos acompañaran a celebrar nuestra boda...</p>
+    <!-- Resto de la invitación -->
+<script>
+    window.onload = function() {
+    // 1. Obtener los parámetros de la URL
+    const params = new URLSearchParams(window.location.search);
+
+    // 2. Buscar el parámetro 'familia' y decodificarlo por si tiene espacios o acentos
+    const nombreFamilia = decodeURIComponent(params.get('familia') || 'Invitado Especial');
+
+    // 3. Encontrar el elemento en el HTML donde va el nombre
+    const elementoNombre = document.getElementById('nombre-familia');
+
+    // 4. Si el elemento existe, poner el nombre de la familia
+    if (elementoNombre) {
+        elementoNombre.textContent = nombreFamilia;
+    }
+};
+
+</script>
+</body>
+</html>
