@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Invitaciones</title>
+    <style>
+        /* Estilos simples para que se vea ordenado */
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        h1 { text-align: center; }
+        input { width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #218838; }
+        #resultado { margin-top: 20px; background-color: #f0f0f0; padding: 15px; border-radius: 5px; word-wrap: break-word; }
+        #resultado a { color: #007bff; }
+    </style>
+</head>
+<body>
+
+    <h1>Generador de Enlaces de Invitación</h1>
+
+    <label for="nombreInvitado">Nombre de la Familia o Invitado:</label>
+    <input type="text" id="nombreInvitado" placeholder="Ej: Familia Pérez">
+
+    <button onclick="generarEnlace()">Generar y Copiar Enlace</button>
+
+    <div id="resultado" style="display:none;">
+        <p><strong>¡Enlace generado!</strong></p>
+        <a href="#" id="enlaceGenerado" target="_blank"></a>
+        <p id="mensajeCopiado" style="color: green; font-weight: bold; display: none;">¡Copiado al portapapeles!</p>
+    </div>
+
+    <script>
+        function generarEnlace() {
+            // 1. Obtener el nombre del input
+            const nombre = document.getElementById('nombreInvitado').value;
+
+            // Validar que el campo no esté vacío
+            if (!nombre) {
+                alert('Por favor, escribe un nombre.');
+                return;
+            }
+
+            // 2. Construir la URL base de tu invitación
+            // IMPORTANTE: Cambia esta URL por la de tu GitHub Pages
+            const urlBase = 'https://tu-usuario.github.io/tu-proyecto/';
+            
+            // 3. Codificar el nombre para que sea seguro en una URL (maneja espacios, acentos, etc. )
+            const nombreCodificado = encodeURIComponent(nombre);
+
+            // 4. Crear el enlace completo
+            const enlaceFinal = `${urlBase}?familia=${nombreCodificado}`;
+
+            // 5. Mostrar el resultado en la página
+            const divResultado = document.getElementById('resultado');
+            const aEnlaceGenerado = document.getElementById('enlaceGenerado');
+            
+            aEnlaceGenerado.href = enlaceFinal;
+            aEnlaceGenerado.textContent = enlaceFinal;
+            divResultado.style.display = 'block';
+
+            // 6. Copiar automáticamente al portapapeles
+            navigator.clipboard.writeText(enlaceFinal).then(() => {
+                // Mostrar mensaje de éxito
+                const mensaje = document.getElementById('mensajeCopiado');
+                mensaje.style.display = 'block';
+                // Ocultar el mensaje después de 2 segundos
+                setTimeout(() => {
+                    mensaje.style.display = 'none';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+
+</body>
+</html>
