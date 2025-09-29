@@ -2,77 +2,160 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Generador de Invitaciones</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
     <style>
-        /* Estilos simples para que se vea ordenado */
-        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-        h1 { text-align: center; }
-        input { width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #218838; }
-        #resultado { margin-top: 20px; background-color: #f0f0f0; padding: 15px; border-radius: 5px; word-wrap: break-word; }
-        #resultado a { color: #007bff; }
+        :root {
+            --bg: #0b0b0f;
+            --fg: #f1f1f1;
+            --muted: #c9c9c9;
+            --primary: #eecfa6;
+            --glass: rgba(255,255,255,0.06);
+            --glass-border: rgba(255,255,255,0.12);
+            --ok: #19c37d;
+            --warn: #f39c12;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Lato', sans-serif; margin: 0; background: radial-gradient(1200px 800px at 10% 10%, rgba(238,207,166,0.15), transparent), radial-gradient(1000px 600px at 90% 40%, rgba(142,197,252,0.12), transparent), var(--bg); color: var(--fg); min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
+        .card { width: min(720px, 94vw); background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: clamp(18px, 4vw, 28px); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+        h1 { margin: 0 0 14px; font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4.8vw, 2.2rem); color: var(--primary); text-align: center; }
+        p.desc { margin: 0 0 18px; color: var(--muted); text-align: center; }
+        label { display: block; margin: 14px 0 8px; font-weight: 600; }
+        input[type="text"], input[type="url"] { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.06); color: var(--fg); outline: none; }
+        input::placeholder { color: #b9b9b9; }
+        .row { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        .actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
+        button { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.08); color: var(--fg); cursor: pointer; font-weight: 700; }
+        button.primary { background: linear-gradient(135deg, #eecfa6, #b9935a); color: #1c1c1c; border: none; }
+        button.primary:hover { filter: brightness(1.05); }
+        button.secondary:hover { background: rgba(255,255,255,0.12); }
+        #resultado { margin-top: 18px; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); word-wrap: break-word; }
+        #resultado a { color: #8ec5fc; text-decoration: none; }
+        .hint { font-size: 0.9rem; color: var(--muted); }
+        .ok { color: var(--ok); font-weight: 700; display: none; }
+        @media (min-width: 640px) {
+            .row { grid-template-columns: 2fr 3fr; gap: 16px; }
+            .actions { grid-template-columns: 1fr 1fr; }
+        }
     </style>
-</head>
+    </head>
 <body>
+    <div class="card">
+        <h1>Generador de Enlace de Invitación</h1>
+        <p class="desc">Crea un enlace único con el nombre del invitado. Compártelo por WhatsApp, email o redes.</p>
 
-    <h1>Generador de Enlaces de Invitación</h1>
+        <div class="row">
+            <div>
+                <label for="nombreInvitado">Nombre de la familia o invitado</label>
+                <input type="text" id="nombreInvitado" placeholder="Ej: Familia Pérez">
+            </div>
+            <div>
+                <label for="baseUrl">URL base (opcional)</label>
+                <input type="url" id="baseUrl" placeholder="https://tudominio.com/invitacion/">
+                <div class="hint">Si lo dejas vacío, usaré esta misma carpeta.</div>
+            </div>
+        </div>
 
-    <label for="nombreInvitado">Nombre de la Familia o Invitado:</label>
-    <input type="text" id="nombreInvitado" placeholder="Ej: Familia Pérez">
+        <div class="actions">
+            <button class="primary" onclick="generarEnlace()">Generar enlace</button>
+            <button class="secondary" id="btnCopiar" style="display:none;">Copiar enlace</button>
+        </div>
 
-    <button onclick="generarEnlace()">Generar y Copiar Enlace</button>
-
-    <div id="resultado" style="display:none;">
-        <p><strong>¡Enlace generado!</strong></p>
-        <a href="#" id="enlaceGenerado" target="_blank"></a>
-        <button id="btnAbrir" style="margin-top:10px; display:none;">Abrir tarjeta ahora</button>
-        <p id="mensajeCopiado" style="color: green; font-weight: bold; display: none;">¡Copiado al portapapeles!</p>
+        <div id="resultado" style="display:none;">
+            <p><strong>¡Enlace generado!</strong> <span id="msgOk" class="ok">Copiado al portapapeles</span></p>
+            <a href="#" id="enlaceGenerado" target="_blank"></a>
+            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                <button id="btnAbrir">Abrir tarjeta</button>
+                <button id="btnWhatsapp">Compartir por WhatsApp</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        function generarEnlace() {
-            // 1. Obtener el nombre del input
-            const nombre = document.getElementById('nombreInvitado').value;
+        function normalizarBaseUrl(base) {
+            if (!base) return '';
+            // Asegura una barra final
+            if (!base.endsWith('/')) base += '/';
+            return base;
+        }
 
-            // Validar que el campo no esté vacío
+        function construirUrlIndex(baseUrl) {
+            if (baseUrl) {
+                baseUrl = normalizarBaseUrl(baseUrl);
+                return baseUrl + 'index.html';
+            }
+            // Derivar desde la ubicación actual (misma carpeta)
+            const href = window.location.href.split('#')[0].split('?')[0];
+            const carpeta = href.replace(/[^/]*$/, '');
+            return new URL('index.html', carpeta).toString();
+        }
+
+        async function copiarTexto(texto) {
+            // Intenta Clipboard API
+            try {
+                await navigator.clipboard.writeText(texto);
+                return true;
+            } catch (e) {
+                // Fallback con input temporal
+                try {
+                    const tmp = document.createElement('input');
+                    tmp.value = texto;
+                    document.body.appendChild(tmp);
+                    tmp.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tmp);
+                    return true;
+                } catch (err) {
+                    return false;
+                }
+            }
+        }
+
+        async function generarEnlace() {
+            const nombre = document.getElementById('nombreInvitado').value.trim();
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+
             if (!nombre) {
                 alert('Por favor, escribe un nombre.');
                 return;
             }
 
-            // 2. Construir la URL base dinámicamente apuntando a index.html en esta misma carpeta
-            const urlBase = new URL('index.html', window.location.href).toString().split('#')[0].split('?')[0];
-            
-            // 3. Codificar el nombre para que sea seguro en una URL (maneja espacios, acentos, etc. )
+            const urlBase = construirUrlIndex(baseUrl);
             const nombreCodificado = encodeURIComponent(nombre);
-
-            // 4. Crear el enlace completo
             const enlaceFinal = `${urlBase}?familia=${nombreCodificado}`;
 
-            // 5. Mostrar el resultado en la página
             const divResultado = document.getElementById('resultado');
             const aEnlaceGenerado = document.getElementById('enlaceGenerado');
             const btnAbrir = document.getElementById('btnAbrir');
-            
+            const btnWhatsapp = document.getElementById('btnWhatsapp');
+            const btnCopiar = document.getElementById('btnCopiar');
+            const msgOk = document.getElementById('msgOk');
+
             aEnlaceGenerado.href = enlaceFinal;
             aEnlaceGenerado.textContent = enlaceFinal;
             divResultado.style.display = 'block';
-            btnAbrir.style.display = 'inline-block';
-            btnAbrir.onclick = () => window.open(enlaceFinal, '_blank');
+            btnCopiar.style.display = 'inline-block';
 
-            // 6. Copiar automáticamente al portapapeles
-            navigator.clipboard.writeText(enlaceFinal).then(() => {
-                // Mostrar mensaje de éxito
-                const mensaje = document.getElementById('mensajeCopiado');
-                mensaje.style.display = 'block';
-                // Ocultar el mensaje después de 2 segundos
-                setTimeout(() => {
-                    mensaje.style.display = 'none';
-                }, 2000);
-            }).catch(err => {
-                console.error('Error al copiar: ', err);
-            });
+            btnAbrir.onclick = () => window.open(enlaceFinal, '_blank');
+            btnWhatsapp.onclick = () => {
+                const url = `https://wa.me/?text=${encodeURIComponent(enlaceFinal)}`;
+                window.open(url, '_blank');
+            };
+            btnCopiar.onclick = async () => {
+                const ok = await copiarTexto(enlaceFinal);
+                msgOk.style.display = ok ? 'inline' : 'none';
+                if (!ok) alert('No pude copiar automáticamente. Copia manualmente el enlace.');
+                setTimeout(() => { msgOk.style.display = 'none'; }, 2000);
+            };
+
+            // Copia automática inicial (si posible)
+            const ok = await copiarTexto(enlaceFinal);
+            msgOk.style.display = ok ? 'inline' : 'none';
+            setTimeout(() => { msgOk.style.display = 'none'; }, 2000);
         }
     </script>
 
